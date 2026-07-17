@@ -53,14 +53,24 @@ export default function App() {
           last toggled {new Date(status.updatedAt).toLocaleString()}
         </p>
       )}
-      <a
-        href="/docs"
-        className={`text-sm underline underline-offset-4 ${
-          party ? "text-fuchsia-100 hover:text-white" : "text-zinc-500 hover:text-zinc-300"
-        }`}
-      >
-        API docs
-      </a>
+      <div className="flex gap-6">
+        <a
+          href="/docs"
+          className={`text-sm underline underline-offset-4 ${
+            party ? "text-fuchsia-100 hover:text-white" : "text-zinc-500 hover:text-zinc-300"
+          }`}
+        >
+          API docs
+        </a>
+        <a
+          href="/rfc720"
+          className={`text-sm underline underline-offset-4 ${
+            party ? "text-fuchsia-100 hover:text-white" : "text-zinc-500 hover:text-zinc-300"
+          }`}
+        >
+          RFC 720
+        </a>
+      </div>
     </main>
   );
 }

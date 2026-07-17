@@ -4,6 +4,7 @@ import { eq, not, sql } from "drizzle-orm";
 import { Scalar } from "@scalar/hono-api-reference";
 import { partyState } from "./db/schema";
 import { openApiSpec } from "./openapi";
+import { rfc720Html } from "./rfc720";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -48,5 +49,6 @@ app.post("/api/v1/party", async (c) => {
 
 app.get("/api/v1/openapi.json", (c) => c.json(openApiSpec));
 app.get("/docs", Scalar({ url: "/api/v1/openapi.json" }));
+app.get("/rfc720", (c) => c.html(rfc720Html));
 
 export default app;
