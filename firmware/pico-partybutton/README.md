@@ -1,7 +1,7 @@
 # pico-partybutton
 
-Raspberry Pi Pico W firmware (Rust + [Embassy](https://embassy.dev)) that drives
-the [party button API](../../README.md) from a physical button.
+Raspberry Pi Pico 2 W (RP2350) firmware (Rust + [Embassy](https://embassy.dev))
+that drives the [party button API](../../README.md) from a physical button.
 
 - Joins wifi (WPA2) using credentials baked in at build time.
 - Watches a GPIO button: **pulled to ground → party ON, released → party OFF.**
@@ -30,21 +30,22 @@ cp ../../.env.example ../../.env   # then edit WIFI_SSID / WIFI_PASSWORD / PARTY
 
 ## Build, flash & monitor
 
-Everything is over USB — no debug probe required. From the repo root, using
-[`just`](https://github.com/casey/just):
+Everything is over USB — no debug probe required. Flashing uses
+[`picotool`](https://github.com/raspberrypi/picotool) (`brew install picotool`).
+From the repo root, using [`just`](https://github.com/casey/just):
 
 ```sh
-rustup target add thumbv6m-none-eabi
-cargo install elf2uf2-rs
+rustup target add thumbv8m.main-none-eabihf
 
-# Hold the Pico's BOOTSEL button while plugging in USB, then:
-just flash     # build + deploy to the RPI-RP2 drive over USB
+# Hold the Pico 2 W's BOOTSEL button while plugging in USB, then:
+just flash     # build + load over USB with picotool, then reboot into it
 
-just monitor   # after it reboots: stream logs over USB serial
+just monitor   # stream logs over USB serial
 ```
 
-`just uf2` builds the `.uf2` file without deploying, if you'd rather copy it onto
-the RPI-RP2 drive yourself. `just monitor` opens `/dev/tty.usbmodem*` with
-`screen` (quit with `ctrl-a k`).
+`just uf2` builds a `.uf2` file (via `picotool uf2 convert`) without deploying, if
+you'd rather copy it onto the RP2350 drive yourself. `just monitor` opens
+`/dev/tty.usbmodem*` with `screen` (quit with `ctrl-a k`).
 
-Requires a recent stable Rust (edition 2024, i.e. Rust ≥ 1.85).
+Requires a recent stable Rust (edition 2024, i.e. Rust ≥ 1.85). Targets the RP2350
+Arm cores (`thumbv8m.main-none-eabihf`).

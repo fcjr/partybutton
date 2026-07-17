@@ -1,5 +1,5 @@
 firmware_dir := "firmware/pico-partybutton"
-elf := firmware_dir / "target/thumbv6m-none-eabi/release/pico-partybutton"
+elf := firmware_dir / "target/thumbv8m.main-none-eabihf/release/pico-partybutton"
 
 # List available recipes.
 default:
@@ -9,18 +9,18 @@ default:
 firmware-fetch:
     {{firmware_dir}}/fetch-firmware.sh
 
-# Build the Pico W firmware (release).
+# Build the Pico 2 W firmware (release).
 firmware-build:
     cd {{firmware_dir}} && cargo build --release
 
-# Flash over USB: hold BOOTSEL while plugging in the Pico, then run this.
-# Deploys the firmware to the RPI-RP2 drive — no debug probe needed.
+# Flash over USB: hold BOOTSEL while plugging in the Pico 2 W, then run this.
+# Loads the firmware with picotool and reboots into it — no debug probe needed.
 flash: firmware-fetch firmware-build
-    elf2uf2-rs -d {{elf}} {{firmware_dir}}/pico-partybutton.uf2
+    picotool load -u -v -x -t elf {{elf}}
 
-# Build a UF2 file without deploying (copy it onto the RPI-RP2 drive yourself).
+# Build a UF2 file without deploying (copy it onto the RP2350 drive yourself).
 uf2: firmware-fetch firmware-build
-    elf2uf2-rs {{elf}} {{firmware_dir}}/pico-partybutton.uf2
+    picotool uf2 convert {{elf}} {{firmware_dir}}/pico-partybutton.uf2
     @echo "UF2 at {{firmware_dir}}/pico-partybutton.uf2"
 
 # Stream the Pico's logs over USB serial (no probe needed).

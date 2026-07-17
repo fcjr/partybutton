@@ -5,7 +5,7 @@ edition = "2024"
 resolver = "2"
 
 [dependencies]
-embassy-rp = { version = "0.10.0", features = ["unstable-pac", "time-driver", "critical-section-impl", "rp2040"] }
+embassy-rp = { version = "0.10.0", features = ["unstable-pac", "time-driver", "critical-section-impl", "rp235xa", "binary-info"] }
 embassy-executor = { version = "0.10.0", features = ["platform-cortex-m", "executor-thread", "executor-interrupt"] }
 embassy-time = { version = "0.5.1" }
 embassy-net = { version = "0.9.1", features = ["tcp", "udp", "dhcpv4", "medium-ethernet", "dns", "proto-ipv4"] }

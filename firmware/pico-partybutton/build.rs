@@ -15,7 +15,6 @@ fn main() {
 
     println!("cargo:rustc-link-arg-bins=--nmagic");
     println!("cargo:rustc-link-arg-bins=-Tlink.x");
-    println!("cargo:rustc-link-arg-bins=-Tlink-rp.x");
 
     // Bake credentials into the firmware from the gitignored repo-root `.env`.
     let manifest = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());

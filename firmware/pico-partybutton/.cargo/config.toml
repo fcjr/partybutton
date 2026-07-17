@@ -1,4 +1,4 @@
-# Flashing is done over USB (BOOTSEL / UF2) — see the justfile. No probe required.
-# Logs stream out the Pico's USB port as a CDC serial device.
+# Flashing is done over USB (BOOTSEL) with picotool — see the justfile. No probe.
+# Logs stream out the Pico 2 W's USB port as a CDC serial device.
 [build]
-target = "thumbv6m-none-eabi"
+target = "thumbv8m.main-none-eabihf"
