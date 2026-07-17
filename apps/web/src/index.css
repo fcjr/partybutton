@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@keyframes party {
+  0% {
+    background-color: var(--color-fuchsia-600);
+  }
+  25% {
+    background-color: var(--color-cyan-500);
+  }
+  50% {
+    background-color: var(--color-amber-500);
+  }
+  75% {
+    background-color: var(--color-emerald-500);
+  }
+  100% {
+    background-color: var(--color-fuchsia-600);
+  }
+}
+
+@utility animate-party {
+  animation: party 4s linear infinite;
+}
