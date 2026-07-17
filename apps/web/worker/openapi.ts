@@ -5,6 +5,7 @@ export const openApiSpec = {
     version: "1.0.0",
     description: "Toggle and check party mode.",
   },
+  servers: [{ url: "https://partybutton.recurse.com", description: "Production" }],
   paths: {
     "/api/v1/party": {
       get: {
