@@ -1,12 +1,4 @@
-# Default runner uses a debug probe (e.g. a second Pico flashed with picoprobe/debugprobe).
-# It streams defmt logs over RTT — great for watching the wifi join and requests.
-# To flash without a probe, build a UF2 instead (see README) and drag it onto the
-# Pico while holding BOOTSEL.
-[target.thumbv6m-none-eabi]
-runner = "probe-rs run --chip RP2040"
-
+# Flashing is done over USB (BOOTSEL / UF2) — see the justfile. No probe required.
+# Logs stream out the Pico's USB port as a CDC serial device.
 [build]
 target = "thumbv6m-none-eabi"
-
-[env]
-DEFMT_LOG = "info"

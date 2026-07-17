@@ -3,27 +3,29 @@
 
 use cyw43::{JoinOptions, aligned_bytes};
 use cyw43_pio::{DEFAULT_CLOCK_DIVIDER, PioSpi};
-use defmt::*;
 use embassy_executor::Spawner;
 use embassy_net::dns::DnsSocket;
 use embassy_net::tcp::client::{TcpClient, TcpClientState};
 use embassy_net::{Config, Stack, StackResources};
 use embassy_rp::clocks::RoscRng;
 use embassy_rp::gpio::{Input, Level, Output, Pull};
-use embassy_rp::peripherals::{DMA_CH0, PIO0};
-use embassy_rp::pio::{InterruptHandler, Pio};
+use embassy_rp::peripherals::{DMA_CH0, PIO0, USB};
+use embassy_rp::pio::{InterruptHandler as PioInterruptHandler, Pio};
+use embassy_rp::usb::{Driver as UsbDriver, InterruptHandler as UsbInterruptHandler};
 use embassy_rp::{bind_interrupts, dma};
 use embassy_time::{Duration, Timer};
+use log::{info, warn};
 use reqwless::client::{HttpClient, TlsConfig, TlsVerify};
 use reqwless::request::{Method, RequestBuilder};
 use serde::Deserialize;
 use serde_json_core::from_slice;
 use static_cell::StaticCell;
-use {defmt_rtt as _, panic_probe as _};
+use panic_halt as _;
 
 bind_interrupts!(struct Irqs {
-    PIO0_IRQ_0 => InterruptHandler<PIO0>;
+    PIO0_IRQ_0 => PioInterruptHandler<PIO0>;
     DMA_IRQ_0 => dma::InterruptHandler<DMA_CH0>;
+    USBCTRL_IRQ => UsbInterruptHandler<USB>;
 });
 
 // Baked in at build time from the repo-root .env (see build.rs).
@@ -35,6 +37,12 @@ const AUTH_HEADER: &str = concat!("Bearer ", env!("PARTY_API_KEY"));
 #[derive(Deserialize)]
 struct PartyState {
     party: bool,
+}
+
+// Streams `log` records out the Pico's USB port as a CDC serial device.
+#[embassy_executor::task]
+async fn logger_task(driver: UsbDriver<'static, USB>) {
+    embassy_usb_logger::run!(1024, log::LevelFilter::Info, driver);
 }
 
 #[embassy_executor::task]
@@ -53,6 +61,11 @@ async fn net_task(mut runner: embassy_net::Runner<'static, cyw43::NetDriver<'sta
 async fn main(spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
     let mut rng = RoscRng;
+
+    // Bring up USB logging first so the join/toggle logs are visible over USB.
+    let usb_driver = UsbDriver::new(p.USB, Irqs);
+    spawner.spawn(logger_task(usb_driver).unwrap());
+    Timer::after(Duration::from_secs(1)).await; // give the host a moment to enumerate
 
     let fw = aligned_bytes!("../cyw43-firmware/43439A0.bin");
     let clm = aligned_bytes!("../cyw43-firmware/43439A0_clm.bin");
@@ -75,7 +88,7 @@ async fn main(spawner: Spawner) {
     static STATE: StaticCell<cyw43::State> = StaticCell::new();
     let state = STATE.init(cyw43::State::new());
     let (net_device, mut control, runner) = cyw43::new(state, pwr, spi, fw, nvram).await;
-    spawner.spawn(unwrap!(cyw43_task(runner)));
+    spawner.spawn(cyw43_task(runner).unwrap());
 
     control.init(clm).await;
     control
@@ -87,7 +100,7 @@ async fn main(spawner: Spawner) {
 
     static RESOURCES: StaticCell<StackResources<5>> = StaticCell::new();
     let (stack, runner) = embassy_net::new(net_device, config, RESOURCES.init(StackResources::new()), seed);
-    spawner.spawn(unwrap!(net_task(runner)));
+    spawner.spawn(net_task(runner).unwrap());
 
     info!("joining wifi network {}", WIFI_SSID);
     while let Err(_err) = control

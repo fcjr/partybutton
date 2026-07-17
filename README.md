@@ -4,4 +4,4 @@ The Party Button is an open party api for the [Recurse Center](https://recurse.c
 
 Inspired by the party button from [Parks and Recreation](https://youtube.com/watch?v=w_ul6dXgkSk&t=126).
 
-The party button implement the standard [RFC-]() party api.
+The party button implement the standard [RFC-720](https://partybutton.recurse.com/rfc) party api.
