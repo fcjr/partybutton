@@ -187,9 +187,6 @@ Abstract
                   are stateless and MAY leave at any time without sending
                   a FIN.  This is rude but permitted.
 
-      Wallflower: A node that is connected to the party but idle.  Fully
-                  conformant.  Consumes no bandwidth and judges no one.
-
 <span class="h2"><a class="selflink" id="section-5" href="#section-5">5</a>.  The Party API</span>
 
    PMP is exposed as a small HTTP API.  All parties are addressable at a
